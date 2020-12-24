@@ -1,0 +1,272 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hfbn
+  name: peer0
+  labels: 
+    name: peer0
+spec:
+  serviceName: peer0-svc
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: peer0
+  template:
+    metadata:
+      labels:
+        hfbn: peer0
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - tmhfbn1
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+       - name: block-data-storage
+         persistentVolumeClaim:
+             claimName: block-data-peer0-claim
+       - name: docker-sock
+         hostPath:
+            path: /var/run/
+            type: Directory
+       - name: chaincode
+         hostPath:
+            path: /home/madmin/workspace/go/src/
+            type: Directory
+     restartPolicy: Always
+     subdomain: peer0-svc
+     containers:
+       - name: peer0
+         image: hyperledger/fabric-peer:latest
+         envFrom:
+         - configMapRef:
+             name: peer-config
+         env: 
+         - name: CORE_PEER_TLS_CERT_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/signcerts/server.crt
+         - name: CORE_PEER_TLS_KEY_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/keystore/server.key
+         - name: CORE_PEER_ID
+           value: peer0.org1.hf.m.io
+         - name: CORE_PEER_ADDRESS
+           value: "peer0-0.peer0-svc.hfbn.svc.cluster.local:7051"
+         - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+           value: "peer0-0.peer0-svc.hfbn.svc.cluster.local:7051"
+         command: ["peer","node","start"]
+         ports:
+           - containerPort: 7051
+           - containerPort: 7053
+           - containerPort: 9443
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+          - name: docker-sock
+            mountPath: /host/var/run/
+          - name: chaincode
+            mountPath: /opt/gopath/src/
+          - name: block-data-storage
+            mountPath: /var/hyperledger/
+       - name: peer-cli
+         stdin: true
+         tty: true
+         image: hyperledger/fabric-tools:latest
+         envFrom:
+         - configMapRef:
+             name: peer-config
+         env: 
+         - name:  GOPATH
+           value: /opt/gopath
+         - name: CORE_PEER_TLS_CERT_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/signcerts/server.crt
+         - name: CORE_PEER_TLS_KEY_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/keystore/server.key
+         - name: CORE_PEER_ID
+           value: peer0.org1.hf.m.io
+         - name: CORE_PEER_ADDRESS
+           value: "peer0-0.peer0-svc.hfbn.svc.cluster.local:7051"
+         command: ["/bin/bash"]
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+          - name: docker-sock
+            mountPath: /host/var/run/
+          - name: chaincode
+            mountPath: /opt/gopath/src/
+     restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hfbn
+  name: peer1
+  labels:
+    name: peer1
+spec:
+  serviceName: peer1-svc
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: peer1
+  template:
+    metadata:
+      labels:
+        hfbn: peer1
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - tmhfbn2
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+       - name: block-data-storage
+         persistentVolumeClaim:
+             claimName: block-data-peer1-claim
+       - name: docker-sock
+         hostPath:
+            path: /var/run/
+            type: Directory
+       - name: chaincode
+         hostPath:
+            path: /home/madmin/workspace/go/src/
+            type: Directory
+     restartPolicy: Always
+     subdomain: peer1-svc
+     containers:
+       - name: peer1
+         image: hyperledger/fabric-peer:latest
+         envFrom:
+         - configMapRef:
+             name: peer-config
+         env: 
+         - name: CORE_PEER_TLS_CERT_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer1.org1.hf.m.io/tls/signcerts/server.crt
+         - name: CORE_PEER_TLS_KEY_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer1.org1.hf.m.io/tls/keystore/server.key
+         - name: CORE_PEER_ID
+           value: peer1.org1.hf.m.io
+         - name: CORE_PEER_ADDRESS
+           value: "peer1-0.peer1-svc.hfbn.svc.cluster.local:7051"
+         - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+           value: "peer1-0.peer1-svc.hfbn.svc.cluster.local:7051"
+         command: ["peer","node","start"]
+         ports:
+           - containerPort: 7051
+           - containerPort: 7053
+           - containerPort: 9443
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data" 
+          - name: docker-sock
+            mountPath: /host/var/run/
+          - name: chaincode
+            mountPath: /opt/gopath/src/
+          - name: block-data-storage
+            mountPath: /var/hyperledger/
+     restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hfbn
+  name: peer2
+  labels:
+    name: peer2
+spec:
+  serviceName: peer2-svc
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: peer2
+  template:
+    metadata:
+      labels:
+        hfbn: peer2
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - tmhfbn3
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+       - name: block-data-storage
+         persistentVolumeClaim:
+             claimName: block-data-peer2-claim
+       - name: docker-sock
+         hostPath:
+            path: /var/run/
+            type: Directory
+       - name: chaincode
+         hostPath:
+            path: /home/madmin/workspace/go/src/github.com/
+            type: Directory
+     restartPolicy: Always
+     subdomain: peer2-svc
+     containers:
+       - name: peer2
+         image: hyperledger/fabric-peer:latest
+         envFrom:
+         - configMapRef:
+             name: peer-config
+         env: 
+         - name: CORE_PEER_TLS_CERT_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer2.org1.hf.m.io/tls/signcerts/server.crt
+         - name: CORE_PEER_TLS_KEY_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer2.org1.hf.m.io/tls/keystore/server.key
+         - name: CORE_PEER_ID
+           value: peer2.org1.hf.m.io
+         - name: CORE_PEER_ADDRESS
+           value: "peer2-0.peer2-svc.hfbn.svc.cluster.local:7051"
+         - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+           value: "peer2-0.peer2-svc.hfbn.svc.cluster.local:7051"
+         command: ["peer","node","start"]
+         ports:
+           - containerPort: 7051
+           - containerPort: 7053
+           - containerPort: 9443
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+          - name: docker-sock
+            mountPath: /host/var/run/
+          - name: chaincode
+            mountPath: /opt/gopath/src/
+          - name: block-data-storage
+            mountPath: /var/hyperledger/
+     restartPolicy: Always

@@ -1,0 +1,36 @@
+{
+  "server": {
+    "production": {
+      "kafka": [
+        "",
+        "",
+        ""
+      ],
+	  "ledgerClient": ""
+    },
+    "staging": {
+      "kafka": [
+        "",
+        "",
+        ""
+      ],
+	  "ledgerClient": ""
+    },
+    "development": {
+      "kafka": [
+        "",
+        "",
+        ""
+      ],
+	  "ledgerClient": ""
+    },
+    "local": {
+      "kafka": [
+        "",
+        "",
+        ""
+      ],
+	  "ledgerClient": ""
+    }
+  }
+}

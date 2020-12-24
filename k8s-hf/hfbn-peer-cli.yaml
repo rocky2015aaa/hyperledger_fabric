@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: hfbn
+  name: peer-cli
+  labels:
+    name: peer-cli
+spec:
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: peer-cli
+  template:
+    metadata:
+      labels:
+        hfbn: peer-cli
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - m-01
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+     restartPolicy: Always
+     containers:
+       - name: peer-cli
+         image: hyperledger/fabric-tools:latest
+         env: 
+         - name:  GODEBUG
+           value: "netdns=go"
+         - name:  GOPATH
+           value: /opt/gopath
+         - name:  CORE_VM_DOCKER_ATTACHSTDOUT
+           value: "true"
+         - name:  CORE_VM_ENDPOINT
+           value: "unix:///host/var/run/docker.sock"
+         - name: CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE
+           value: bridge
+         - name:  FABRIC_LOGGING_SPEC
+           value: DEBUG
+         - name:  CORE_PEER_TLS_ENABLED
+           value: "true"
+         - name: CORE_PEER_TLS_ROOTCERT_FILE
+           value: /data/org1-ca-chain.pem
+         - name: CORE_PEER_LOCALMSPID
+           value: org1.hf.m.io
+         - name: CORE_PEER_MSPCONFIGPATH
+           value: /data/peerOrganizations/org1.hf.m.io/users/admin/msp/
+         - name: CORE_PEER_TLS_CERT_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/signcerts/server.crt
+         - name: CORE_PEER_TLS_KEY_FILE
+           value: /data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/keystore/server.key
+         - name: CORE_PEER_ID
+           value: peer-cli
+         - name: CORE_PEER_ADDRESS
+           value: "0.0.0.0:7053"
+         command: ["/bin/bash"]
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+     restartPolicy: Always

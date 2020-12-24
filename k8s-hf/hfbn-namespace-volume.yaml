@@ -1,0 +1,265 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: hfbn
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: artifacts
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: /home/madmin/workspace/go/src/github.com/m/k8s-hf/artifacts 
+      server: 10.16.40.21 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: hfbn
+    name: artifacts-claim
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 100Mi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: block-data-orderer0
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: /home/madmin/workspace/go/src/github.com/m/k8s-hf/block-data/orderers/orderer0
+      server: 10.16.40.21 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: hfbn
+    name: block-data-orderer0-claim
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 100Mi
+        
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: block-data-orderer1
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: /home/madmin/workspace/go/src/github.com/m/k8s-hf/block-data/orderers/orderer1
+      server: 10.16.40.21 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: hfbn
+    name: block-data-orderer1-claim
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 100Mi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: block-data-orderer2
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: /home/madmin/workspace/go/src/github.com/m/k8s-hf/block-data/orderers/orderer2
+      server: 10.16.40.21 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: hfbn
+    name: block-data-orderer2-claim
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 100Mi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: block-data-orderer3
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: /home/madmin/workspace/go/src/github.com/m/k8s-hf/block-data/orderers/orderer3
+      server: 10.16.40.21 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: hfbn
+    name: block-data-orderer3-claim
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 100Mi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: block-data-orderer4
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: /home/madmin/workspace/go/src/github.com/m/k8s-hf/block-data/orderers/orderer4
+      server: 10.16.40.21 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: hfbn
+    name: block-data-orderer4-claim
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 100Mi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: block-data-peer0
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: /home/madmin/workspace/go/src/github.com/m/k8s-hf/block-data/peers/peer0
+      server: 10.16.40.21 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: hfbn
+    name: block-data-peer0-claim
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 100Mi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: block-data-peer1
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: /home/madmin/workspace/go/src/github.com/m/k8s-hf/block-data/peers/peer1
+      server: 10.16.40.21 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: hfbn
+    name: block-data-peer1-claim
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 100Mi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: block-data-peer2
+spec:
+    capacity:
+       storage: 500Mi
+    accessModes:
+       - ReadWriteMany
+    nfs:
+      path: /home/madmin/workspace/go/src/github.com/m/k8s-hf/block-data/peers/peer2
+      server: 10.16.40.21 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    namespace: hfbn
+    name: block-data-peer2-claim
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+      requests:
+        storage: 100Mi

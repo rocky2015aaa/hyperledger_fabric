@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: hfbn
+  name: ica-svc
+spec:
+  clusterIP: None
+  selector:
+    hfbn: ica
+  ports:
+  - name: orderer-ica-1
+    port: 7054
+    targetPort: 7054
+  - name: orderer-ica-2
+    port: 9444
+    targetPort: 9444
+  - name: peer-ica-1
+    port: 7055
+    targetPort: 7055
+  - name: peer-ica-2
+    port: 9445
+    targetPort: 9445
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hfbn
+  name: ica
+  labels:
+    name: ica
+spec:
+  serviceName: ica-svc
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: ica
+  template:
+    metadata:
+      labels:
+        hfbn: ica
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - tmhfbn1
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+     restartPolicy: Always
+     subdomain: ica-svc
+     containers:
+       - name: orderer-ica
+         image: hyperledger/fabric-ca:latest
+         envFrom:
+         - configMapRef:
+             name: ca-config
+         - configMapRef:
+             name: ica-config
+         env: 
+         - name:  BOOTSTRAP_USER_PASS
+           value: ica.hf.m.io-admin:adminpw
+         - name:  TARGET_CHAINFILE
+           value: /data/org0-ca-chain.pem
+         - name: ORG
+           value: org0
+         - name: FABRIC_CA_SERVER_PORT
+           value: "7054"
+         - name: FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS
+           value: "127.0.0.1:9444"
+         - name: FABRIC_CA_CLIENT_HOME
+           value: /root/cas/ica.hf.m.io
+         command: ["/bin/bash"]
+         args: ["-c", "/data/scripts/start-orderer-ica.sh"]
+         ports:
+           - containerPort: 7054
+           - containerPort: 9444
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+       - name: peer-ica
+         image: hyperledger/fabric-ca:latest
+         envFrom:
+         - configMapRef:
+             name: ca-config
+         - configMapRef:
+             name: ica-config
+         env: 
+         - name:  BOOTSTRAP_USER_PASS
+           value: ica.org1.hf.m.io-admin:adminpw
+         - name:  TARGET_CHAINFILE
+           value: /data/org1-ca-chain.pem
+         - name: ORG
+           value: org1
+         - name: FABRIC_CA_SERVER_PORT
+           value: "7055"
+         - name: FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS
+           value: "127.0.0.1:9445"
+         - name: FABRIC_CA_CLIENT_HOME
+           value: /root/cas/ica.org1.hf.m.io
+         command: ["/bin/bash"]
+         args: ["-c", "/data/scripts/start-peer-ica.sh"]
+         ports:
+           - containerPort: 7055
+           - containerPort: 9445
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+     restartPolicy: Always

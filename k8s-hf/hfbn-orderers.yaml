@@ -1,0 +1,377 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hfbn
+  name: orderer0
+  labels:
+    name: orderer0
+spec:
+  serviceName: orderer0-svc
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: orderer0
+  template:
+    metadata:
+      labels:
+        hfbn: orderer0
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - tmhfbn1
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+       - name: block-data-storage
+         persistentVolumeClaim:
+             claimName: block-data-orderer0-claim
+     restartPolicy: Always
+     subdomain: orderer0-svc
+     containers:
+       - name: orderer0
+         image: hyperledger/fabric-orderer:latest
+         envFrom:
+         - configMapRef:
+             name: orderer-config
+         env: 
+         - name:  ORDERER_GENERAL_LISTENADDRESS
+           value: "orderer0-0.orderer0-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_HOST
+           value: "orderer0-0.orderer0-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_OPERATIONS_LISTENADDRESS
+           value: "orderer0-0.orderer0-svc.hfbn.svc.cluster.local:8443"
+         - name:  ORDERER_GENERAL_LOCALMSPDIR
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/msp
+         - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_TLS_CERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/signcerts/server.crt
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/signcerts/server.crt
+         command: ["orderer"]
+         ports:
+           - containerPort: 7050
+           - containerPort: 8443
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+          - name: block-data-storage
+            mountPath: /var/hyperledger/production
+     restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hfbn
+  name: orderer1
+  labels:
+    name: orderer1
+spec:
+  serviceName: orderer1-svc
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: orderer1
+  template:
+    metadata:
+      labels:
+        hfbn: orderer1
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - tmhfbn2
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+       - name: block-data-storage
+         persistentVolumeClaim:
+             claimName: block-data-orderer1-claim
+     restartPolicy: Always
+     subdomain: orderer1-svc
+     containers:
+       - name: orderer1
+         image: hyperledger/fabric-orderer:latest
+         envFrom:
+         - configMapRef:
+             name: orderer-config
+         env: 
+         - name:  ORDERER_GENERAL_LISTENADDRESS
+           value: "orderer1-0.orderer1-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_HOST
+           value: "orderer1-0.orderer1-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_OPERATIONS_LISTENADDRESS
+           value: "orderer1-0.orderer1-svc.hfbn.svc.cluster.local:8443"
+         - name:  ORDERER_GENERAL_LOCALMSPDIR
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer1.hf.m.io/msp
+         - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer1.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_TLS_CERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer1.hf.m.io/tls/signcerts/server.crt
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer1.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer1.hf.m.io/tls/signcerts/server.crt
+         command: ["orderer"]
+         ports:
+           - containerPort: 7050
+           - containerPort: 8443
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+          - name: block-data-storage
+            mountPath: /var/hyperledger/production
+     restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hfbn
+  name: orderer2
+  labels:
+    name: orderer2
+spec:
+  serviceName: orderer2-svc
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: orderer2
+  template:
+    metadata:
+      labels:
+        hfbn: orderer2
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - tmhfbn3
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+       - name: block-data-storage
+         persistentVolumeClaim:
+             claimName: block-data-orderer2-claim
+     restartPolicy: Always
+     subdomain: orderer2-svc
+     containers:
+       - name: orderer2
+         image: hyperledger/fabric-orderer:latest
+         envFrom:
+         - configMapRef:
+             name: orderer-config
+         env: 
+         - name:  ORDERER_GENERAL_LISTENADDRESS
+           value: "orderer2-0.orderer2-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_HOST
+           value: "orderer2-0.orderer2-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_OPERATIONS_LISTENADDRESS
+           value: "orderer2-0.orderer2-svc.hfbn.svc.cluster.local:8443"
+         - name:  ORDERER_GENERAL_LOCALMSPDIR
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer2.hf.m.io/msp
+         - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer2.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_TLS_CERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer2.hf.m.io/tls/signcerts/server.crt
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer2.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer2.hf.m.io/tls/signcerts/server.crt
+         command: ["orderer"]
+         ports:
+           - containerPort: 7050
+           - containerPort: 8443
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+          - name: block-data-storage
+            mountPath: /var/hyperledger/production
+     restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hfbn
+  name: orderer3
+  labels:
+    name: orderer3
+spec:
+  serviceName: orderer3-svc
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: orderer3
+  template:
+    metadata:
+      labels:
+        hfbn: orderer3
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - tmhfbn3
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+       - name: block-data-storage
+         persistentVolumeClaim:
+             claimName: block-data-orderer3-claim
+     restartPolicy: Always
+     subdomain: orderer3-svc
+     containers:
+       - name: orderer3
+         image: hyperledger/fabric-orderer:latest
+         envFrom:
+         - configMapRef:
+             name: orderer-config
+         env: 
+         - name:  ORDERER_GENERAL_LISTENADDRESS
+           value: "orderer3-0.orderer3-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_HOST
+           value: "orderer3-0.orderer3-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_OPERATIONS_LISTENADDRESS
+           value: "orderer3-0.orderer3-svc.hfbn.svc.cluster.local:8443"
+         - name:  ORDERER_GENERAL_LOCALMSPDIR
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/msp
+         - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_TLS_CERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/signcerts/server.crt
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/signcerts/server.crt
+         command: ["orderer"]
+         ports:
+           - containerPort: 7050
+           - containerPort: 8443
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+          - name: block-data-storage
+            mountPath: /var/hyperledger/production
+     restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hfbn
+  name: orderer4
+  labels:
+    name: orderer4
+spec:
+  serviceName: orderer4-svc
+  replicas: 1
+  selector:
+     matchLabels:
+       hfbn: orderer4
+  template:
+    metadata:
+      labels:
+        hfbn: orderer4
+    spec:
+     affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - tmhfbn3
+     tolerations:
+       - key: "node-role.kubernetes.io/master"
+         operator: "Exists"
+         effect: "NoSchedule"
+     volumes:
+       - name: artifacts-storage
+         persistentVolumeClaim:
+             claimName: artifacts-claim
+       - name: block-data-storage
+         persistentVolumeClaim:
+             claimName: block-data-orderer4-claim
+     restartPolicy: Always
+     subdomain: orderer4-svc
+     containers:
+       - name: orderer4
+         image: hyperledger/fabric-orderer:latest
+         envFrom:
+         - configMapRef:
+             name: orderer-config
+         env: 
+         - name:  ORDERER_GENERAL_LISTENADDRESS
+           value: "orderer4-0.orderer4-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_HOST
+           value: "orderer4-0.orderer4-svc.hfbn.svc.cluster.local"
+         - name: ORDERER_OPERATIONS_LISTENADDRESS
+           value: "orderer4-0.orderer4-svc.hfbn.svc.cluster.local:8443"
+         - name:  ORDERER_GENERAL_LOCALMSPDIR
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer4.hf.m.io/msp
+         - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer4.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_TLS_CERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer4.hf.m.io/tls/signcerts/server.crt
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer4.hf.m.io/tls/keystore/server.key
+         - name: ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE
+           value: /data/ordererOrganizations/hf.m.io/orderers/orderer4.hf.m.io/tls/signcerts/server.crt
+         command: ["orderer"]
+         ports:
+           - containerPort: 7050
+           - containerPort: 8443
+         volumeMounts:
+          - name: artifacts-storage
+            mountPath: "/data"
+          - name: block-data-storage
+            mountPath: /var/hyperledger/production
+     restartPolicy: Always

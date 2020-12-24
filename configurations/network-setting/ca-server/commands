@@ -1,0 +1,29 @@
+docker network create --attachable --driver overlay mnet
+
+docker volume create zookeeper0.hf.m.io_data
+docker volume create zookeeper0.hf.m.io_datalog
+docker run -d --network=mnet --restart=always --name zookeeper0.hf.m.io -p 2181:2181 -p 2888:2888 -p 3888:3888 -e ZOO_MY_ID=1 -e ZOO_SERVERS="server.1=zookeeper0.hf.m.io:2888:3888 server.2=zookeeper1.hf.m.io:2888:3888 server.3=zookeeper2.hf.m.io:2888:3888" -v zookeeper0.hf.m.io_data:/data -v zookeeper0.hf.m.io_datalog:/datalog hyperledger/fabric-zookeeper
+cd fixtures
+docker-compose -f docker-compose.yaml up -d
+
+exit
+rm -rf data
+vagrant scp m-01:/home/vagrant/workspace/go/src/github.com/m/hyperledger-fabric-server/fixtures/data .
+vagrant scp data m-02:/home/vagrant/workspace/go/src/github.com/m/hyperledger-fabric-server/fixtures
+vagrant scp data m-03:/home/vagrant/workspace/go/src/github.com/m/hyperledger-fabric-server/fixtures
+
+docker volume create zookeeper1.hf.m.io_data
+docker volume create zookeeper1.hf.m.io_datalog
+docker run -d --network=mnet --restart=always --name zookeeper1.hf.m.io -p 2181:2181 -p 2888:2888 -p 3888:3888 -e ZOO_MY_ID=2 -e ZOO_SERVERS="server.1=zookeeper0.hf.m.io:2888:3888 server.2=zookeeper1.hf.m.io:2888:3888 server.3=zookeeper2.hf.m.io:2888:3888" -v zookeeper1.hf.m.io_data:/data -v zookeeper1.hf.m.io_datalog:/datalog hyperledger/fabric-zookeeper
+cd fixtures
+docker-compose -f docker-compose-peer1.yaml up -d
+
+docker volume create zookeeper2.hf.m.io_data
+docker volume create zookeeper2.hf.m.io_datalog
+docker run -d --network=mnet --restart=always --name zookeeper2.hf.m.io -p 2181:2181 -p 2888:2888 -p 3888:3888 -e ZOO_MY_ID=3 -e ZOO_SERVERS="server.1=zookeeper0.hf.m.io:2888:3888 server.2=zookeeper1.hf.m.io:2888:3888 server.3=zookeeper2.hf.m.io:2888:3888" -v zookeeper2.hf.m.io_data:/data -v zookeeper2.hf.m.io_datalog:/datalog hyperledger/fabric-zookeeper
+cd fixtures
+docker-compose -f docker-compose-peer2.yaml up -d
+
+govendor init
+govendor add +external
+govendor sync

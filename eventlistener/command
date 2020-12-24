@@ -1,0 +1,41 @@
+-- promote docker swarm slave nodes
+
+docker node promote slave1-hostname
+docker node promote slave2-hostname
+
+-- set environment variable
+
+export HF_PEER=peer0.org1.hf.m.io
+export HF_PEER=peer1.org1.hf.m.io
+export HF_PEER=peer2.org1.hf.m.io
+
+-- compile go application
+
+CGO_ENABLED=0 GOOS=linux go build -a
+
+-- docker build command
+
+docker build --tag fabric-eventlistener:1.0 .
+
+-- add docker tag for pushing docker hub
+
+docker tag fabric-eventlistener:1.0 m/fabric-eventlistener:1.0
+
+-- docker login
+
+docker login
+
+-- docker push tagged image
+
+docker push m/fabric-eventlistener:1.0
+
+-- docker service create command
+* 1.0
+docker service create --name hf-eventlistener --network=mnet --replicas 1 -e FABRIC_CFG_PATH=/root/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/ -e HF_PEER=$HF_PEER --mount type=bind,source=/home/ubuntu/workspace/go/src/github.com/m/eventlistener/,destination=/root/workspace/go/src/github.com/m/eventlistener/ --mount type=bind,source=/home/ubuntu/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/,destination=/root/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/ m/fabric-eventlistener:1.0
+
+* 1.1
+docker service create --name hf-eventlistener --network=mnet --replicas 1 --mount type=bind,source=/home/madmin/workspace/go/src/github.com/m/eventlistener/,destination=/root/go/src/github.com/m/eventlistener/ --mount type=bind,source=/home/madmin/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/,destination=/root/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/ --mount type=bind,source=/home/madmin/workspace/go/src/github.com/m/echo-rest-server/config/,destination=/root/go/src/github.com/m/echo-rest-server/config/ --host hfbn1-internal.m-fws.io:10.16.30.21 --host hfbn2-internal.m-fws.io:10.16.30.22 --host hfbn3-internal.m-fws.io:10.16.30.23 --host kafka1-internal.m-fws.io:10.16.30.24 --host kafka2-internal.m-fws.io:10.16.30.25 --host kafka3-internal.m-fws.io:10.16.30.26 m/fabric-eventlistener:1.1
+
+-- docker run command
+
+docker run -tid --network=mnet --name=fabric-event-listener -v /home/ubuntu/workspace/go/src/github.com/m/eventlistener/:/root/workspace/go/src/github.com/m/eventlistener/ -v /home/ubuntu/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/:/root/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/ --env FABRIC_CFG_PATH=/root/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/ fabric-eventlistener:1.0

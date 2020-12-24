@@ -1,0 +1,86 @@
+{
+  "fabric": {
+    "cryptodir": "network/fabric/m/data",
+    "network": {
+      "orderer": {
+        "url": "grpcs://172.17.8.11:7050",
+        "mspid": "hf.m.io",
+        "domain": "hf.m.io",
+        "user": {
+          "key": "network/fabric/m/data/ordererOrganizations/hf.m.io/users/admin/msp/keystore/512a5e2c96ff0193bf27fa9a77e5f4b1c4937cb394e6a4bda6c6d3b441f8da1d_sk",
+          "cert": "network/fabric/m/data/ordererOrganizations/hf.m.io/users/admin/msp/signcerts/admin@hf.m.io-cert.pem"
+        },
+        "server-hostname": "orderer0.hf.m.io",
+        "tls_cacerts": "network/fabric/m/data/org0-ca-chain.pem"
+      },
+      "org1": {
+        "name": "MOrganization1",
+        "mspid": "org1.hf.m.io",
+        "domain": "org1.hf.m.io",
+        "user": {
+          "key": "network/fabric/m/data/peerOrganizations/org1.hf.m.io/users/admin/msp/keystore/db10ec139e25e78aeac3ba90c56fb1d74283ced018e5d32be40844626e99e99a_sk",
+          "cert": "network/fabric/m/data/peerOrganizations/org1.hf.m.io/users/admin/msp/signcerts/admin@org1.hf.m.io-cert.pem"
+        },
+        "ca": {
+          "url": "https://172.17.8.11:7054",
+          "name": "ica.org1.hf.m.io"
+        },
+        "peer1": {
+          "requests": "grpcs://172.17.8.11:7051",
+          "events": "grpcs://172.17.8.11:7053",
+          "server-hostname": "peer0.org1.hf.m.io",
+          "tls_cacerts": "network/fabric/m/data/org1-ca-chain.pem"
+        },
+        "peer2": {
+          "requests": "grpcs://172.17.8.12:7051",
+          "events": "grpcs://172.17.8.12:7053",
+          "server-hostname": "peer1.org1.hf.m.io",
+          "tls_cacerts": "network/fabric/m/data/org1-ca-chain.pem"
+        },
+        "peer2": {
+          "requests": "grpcs://172.17.8.13:7051",
+          "events": "grpcs://172.17.8.13:7053",
+          "server-hostname": "peer2.org1.hf.m.io",
+          "tls_cacerts": "network/fabric/m/data/org1-ca-chain.pem"
+        }
+
+      }
+    },
+    "channel": [
+      {
+        "name": "m",
+        "config": "network/fabric/m/data/m.channel.tx",
+        "organizations": ["org1"],
+        "deployed": false
+      }
+    ],
+    "chaincodes": [{"id": "simple", "path": "contract/fabric/simple/go", "language":"golang", "version": "v0", "channel": "m"}],
+    "endorsement-policy": {
+      "identities": [
+        {
+          "role": {
+            "name": "member",
+            "mspId": "org1.hf.m.io"
+          }
+        },
+        {
+          "role": {
+            "name": "admin",
+            "mspId": "org1.hf.m.io"
+          }
+        }
+      ],
+      "policy": { "1-of": [{"signed-by": 0}]}
+    },
+    "context": {
+      "open": "m",
+      "query": "m"
+    }
+  },
+  "info" : {
+    "Version": "1.0.5",
+    "Size": "3 Peers",
+    "Orderer": "Kafka",
+    "Distribution": "Multiple Host"
+  }
+}

@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: hfbn
+  name: orderer0-svc
+spec:
+  type: ClusterIP
+  selector:
+    hfbn: orderer0
+  ports:
+  - name: orderer0-1
+    port: 7050
+    targetPort: 7050
+  - name: orderer0-2
+    port: 8443
+    targetPort: 8443
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: hfbn
+  name: orderer1-svc
+spec:
+  type: ClusterIP
+  selector:
+    hfbn: orderer1
+  ports:
+  - name: orderer1-1
+    port: 7050
+    targetPort: 7050
+  - name: orderer1-2
+    port: 8443
+    targetPort: 8443
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: hfbn
+  name: orderer2-svc
+spec:
+  type: ClusterIP
+  selector:
+    hfbn: orderer2
+  ports:
+  - name: orderer2-1
+    port: 7050
+    targetPort: 7050
+  - name: orderer2-2
+    port: 8443
+    targetPort: 8443
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: hfbn
+  name: orderer3-svc
+spec:
+  type: ClusterIP
+  selector:
+    hfbn: orderer3
+  ports:
+  - name: orderer3-1
+    port: 7050
+    targetPort: 7050
+  - name: orderer3-2
+    port: 8443
+    targetPort: 8443
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: hfbn
+  name: orderer4-svc
+spec:
+  type: ClusterIP
+  selector:
+    hfbn: orderer4
+  ports:
+  - name: orderer4-1
+    port: 7050
+    targetPort: 7050
+  - name: orderer4-2
+    port: 8443
+    targetPort: 8443
+

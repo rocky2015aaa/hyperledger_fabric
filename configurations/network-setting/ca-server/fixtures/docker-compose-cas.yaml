@@ -1,0 +1,119 @@
+version: '3.5'
+
+volumes:
+  rca.hf.m.io_server_home:
+  rca.hf.m.io_client_home:
+  ica.hf.m.io_server_home:
+  ica.hf.m.io_client_home:
+  ica.org1.hf.m.io_server_home:
+  ica.org1.hf.m.io_client_home:
+
+networks:
+  default:
+    external:
+      name: mnet
+
+services:
+      
+  rca.hf.m.io:
+    image: hyperledger/fabric-ca:latest
+    container_name: rca.hf.m.io
+    environment:
+      - FABRIC_ORGS=org0 org1
+      - FABRIC_CA_SERVER_DEBUG=true
+      - FABRIC_CA_SERVER_HOME=/etc/hyperledger/fabric-ca
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_CSR_CN=rca.hf.m.io
+      - FABRIC_CA_SERVER_CSR_HOSTS=rca.hf.m.io
+      - BOOTSTRAP_USER_PASS=rca.hf.m.io-admin:adminpw
+      - TARGET_CERTFILE=/data/ca-cert.pem
+    ports:
+      - 7054:7054
+    command: /bin/bash -c '/scripts/start-rca.sh'
+    volumes:
+      - rca.hf.m.io_server_home:/etc/hyperledger
+      - rca.hf.m.io_client_home:/root/cas
+      - ./scripts:/scripts
+      - ./data:/data
+    networks:
+      default:
+        aliases:
+          - rca.hf.m.io
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500M"
+        max-file: "10"
+    restart: always
+
+  ica.hf.m.io:
+    image: hyperledger/fabric-ca:latest
+    container_name: ica.hf.m.io
+    environment:
+      - FABRIC_CA_SERVER_CSR_HOSTS=ica.hf.m.io
+      - FABRIC_CA_SERVER_CA_NAME=ica.hf.m.io
+      - FABRIC_CA_SERVER_INTERMEDIATE_TLS_CERTFILES=/data/ca-cert.pem
+      - PARENT_URL=https://rca.hf.m.io-admin:adminpw@rca.hf.m.io:7054
+      - FABRIC_CA_CLIENT_TLS_CERTFILES=/etc/hyperledger/fabric-ca/ca-chain.pem
+      - FABRIC_CA_SERVER_HOME=/etc/hyperledger/fabric-ca
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_DEBUG=true
+      - BOOTSTRAP_USER_PASS=ica.hf.m.io-admin:adminpw
+      - TARGET_CHAINFILE=/data/org0-ca-chain.pem
+      - ORG=org0
+      - FABRIC_CA_CLIENT_HOME=/root/cas/ica.hf.m.io
+    ports:
+      - 7055:7054
+    command: /bin/bash -c '/scripts/start-orderer-ica.sh'
+    volumes:
+      - ica.hf.m.io_server_home:/etc/hyperledger
+      - ica.hf.m.io_client_home:/root/cas
+      - ./scripts:/scripts
+      - ./data:/data
+    depends_on:
+      - rca.hf.m.io
+    networks:
+      default:
+        aliases:
+          - ica.hf.m.io
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500M"
+        max-file: "10"
+    restart: always
+
+  ica.org1.hf.m.io:
+    image: hyperledger/fabric-ca
+    container_name: ica.org1.hf.m.io
+    environment:
+      - FABRIC_CA_SERVER_CSR_HOSTS=ica.org1.hf.m.io
+      - FABRIC_CA_SERVER_CA_NAME=ica.org1.hf.m.io
+      - FABRIC_CA_SERVER_INTERMEDIATE_TLS_CERTFILES=/data/ca-cert.pem
+      - PARENT_URL=https://rca.hf.m.io-admin:adminpw@rca.hf.m.io:7054
+      - FABRIC_CA_CLIENT_TLS_CERTFILES=/etc/hyperledger/fabric-ca/ca-chain.pem
+      - FABRIC_CA_SERVER_HOME=/etc/hyperledger/fabric-ca
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_DEBUG=true
+      - BOOTSTRAP_USER_PASS=ica.org1.hf.m.io-admin:adminpw
+      - TARGET_CHAINFILE=/data/org1-ca-chain.pem
+      - ORG=org1
+      - FABRIC_CA_CLIENT_HOME=/root/cas/ica.org1.hf.m.io
+    ports:
+      - 7056:7054
+    command: /bin/bash -c '/scripts/start-peer-ica.sh'
+    volumes:
+      - ica.org1.hf.m.io_server_home:/etc/hyperledger
+      - ica.org1.hf.m.io_client_home:/root/cas
+      - ./scripts:/scripts
+      - ./data:/data
+    depends_on:
+      - rca.hf.m.io
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500M"
+        max-file: "10"
+    restart: always

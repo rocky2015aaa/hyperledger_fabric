@@ -1,0 +1,158 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+Organizations:
+    - &OrdererM
+        Name: OrdererM
+        SkipAsForeign: false
+        ID: hf.m.io
+        AdminPrincipal: Role.ADMIN
+        MSPDir: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/msp
+        Policies: &SampleOrdererOrgPolicies
+            Readers:
+                Type: Signature
+                Rule: "OR('hf.m.io.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('hf.m.io.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('hf.m.io.admin')"
+
+    - &Org1M
+        Name: Org1M
+        SkipAsForeign: false
+        ID: org1.hf.m.io
+        AdminPrincipal: Role.ADMIN
+        MSPDir: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/peerOrganizations/org1.hf.m.io/msp
+        Policies: &SampleOrgPolicies
+            Readers:
+                Type: Signature
+                Rule: "OR('org1.hf.m.io.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('org1.hf.m.io.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('org1.hf.m.io.admin')"
+        OrdererEndpoints:
+            - "127.0.0.1:7050"
+        AnchorPeers:
+            - Host: 127.0.0.1
+              Port: 7051
+
+Capabilities:
+    Channel: &ChannelCapabilities
+        V1_4_3: true
+    Orderer: &OrdererCapabilities
+        V1_4_2: true
+    Application: &ApplicationCapabilities
+        V1_4_2: true
+
+Application: &ApplicationDefaults
+    Organizations:
+    Policies: &ApplicationDefaultPolicies
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+    OrdererType: etcdraft
+    Addresses:
+        - orderer0.hf.m.io:7050
+        - orderer1.hf.m.io:7050
+        - orderer2.hf.m.io:7050
+        - orderer3.hf.m.io:7050
+        - orderer4.hf.m.io:7050
+    BatchTimeout: 0.5s
+    BatchSize:
+        MaxMessageCount: 500
+        AbsoluteMaxBytes: 10 MB
+        PreferredMaxBytes: 2 MB
+    MaxChannels: 0
+    EtcdRaft:
+        Consenters:
+            - Host: orderer0.hf.m.io
+              Port: 7050
+              ClientTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/signcerts/server.crt
+              ServerTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/signcerts/server.crt
+            - Host: orderer1.hf.m.io
+              Port: 7050
+              ClientTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer1.hf.m.io/tls/signcerts/server.crt
+              ServerTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer1.hf.m.io/tls/signcerts/server.crt
+            - Host: orderer2.hf.m.io
+              Port: 7050
+              ClientTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer2.hf.m.io/tls/signcerts/server.crt
+              ServerTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer2.hf.m.io/tls/signcerts/server.crt
+            - Host: orderer3.hf.m.io
+              Port: 7050
+              ClientTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/signcerts/server.crt
+              ServerTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/signcerts/server.crt
+            - Host: orderer4.hf.m.io
+              Port: 7050
+              ClientTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer4.hf.m.io/tls/signcerts/server.crt
+              ServerTLSCert: /home/m/workspace/go/src/github.com/m/configurations/network-setting/ca-server/fixtures/data/ordererOrganizations/hf.m.io/orderers/orderer4.hf.m.io/tls/signcerts/server.crt
+        Options:
+            TickInterval: 500ms
+            ElectionTick: 10
+            HeartbeatTick: 1
+            MaxInflightBlocks: 5
+            SnapshotIntervalSize: 16 MB
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+    Capabilities:
+        <<: *OrdererCapabilities
+
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
+
+Profiles:
+    M:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererM
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Org1M
+        Consortium: SampleConsortium
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *Org1M
+

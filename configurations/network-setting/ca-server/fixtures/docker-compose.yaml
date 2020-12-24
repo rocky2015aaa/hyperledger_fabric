@@ -1,0 +1,178 @@
+version: '3.5'
+
+volumes:
+  orderer0.hf.m.io:
+  orderer3.hf.m.io:
+  peer0.org1.hf.m.io:
+
+networks:
+  default:
+    external:
+      name: mnet
+
+services:
+
+  orderer0.hf.m.io:
+    image: hyperledger/fabric-orderer:latest
+    container_name: orderer0.hf.m.io
+    environment:
+      - GODEBUG=netdns=go
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - ORDERER_GENERAL_GENESISPROFILE=OrdererM
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/data/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=hf.m.io
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/data/org0-ca-chain.pem]
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/data/org0-ca-chain.pem]
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=mnet
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_HOST=orderer0.hf.m.io
+      - ORDERER_GENERAL_LOCALMSPDIR=/data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/msp
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/keystore/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/signcerts/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/keystore/server.key
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/data/ordererOrganizations/hf.m.io/orderers/orderer0.hf.m.io/tls/signcerts/server.crt
+    command: orderer
+    volumes:
+      - orderer0.hf.m.io:/var/hyperledger/production/orderer/
+      - ./data:/data
+      - ./scripts:/scripts
+    ports:
+      - 7050:7050
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500M"
+        max-file: "10"
+    restart: always
+    
+  orderer3.hf.m.io:
+    image: hyperledger/fabric-orderer:latest
+    container_name: orderer3.hf.m.io
+    environment:
+      - GODEBUG=netdns=go
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - ORDERER_GENERAL_GENESISPROFILE=OrdererM
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/data/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=hf.m.io
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/data/org0-ca-chain.pem]
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/data/org0-ca-chain.pem]
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=mnet
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_HOST=orderer3.hf.m.io
+      - ORDERER_GENERAL_LOCALMSPDIR=/data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/msp
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/keystore/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/signcerts/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/keystore/server.key
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/data/ordererOrganizations/hf.m.io/orderers/orderer3.hf.m.io/tls/signcerts/server.crt
+    command: orderer
+    volumes:
+      - orderer3.hf.m.io:/var/hyperledger/production/orderer/
+      - ./data:/data
+      - ./scripts:/scripts
+    ports:
+      - 8050:7050
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500M"
+        max-file: "10"
+    restart: always
+
+  peer0.org1.hf.m.io:
+    image: hyperledger/fabric-peer:latest
+    container_name: peer0.org1.hf.m.io
+    environment:
+      - GODEBUG=netdns=go
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_ATTACHSTDOUT=true
+      - FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_METRICS_PROVIDER=prometheus
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/data/org1-ca-chain.pem
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_LOCALMSPID=org1.hf.m.io
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=mnet
+      - CORE_PEER_MSPCONFIGPATH=/data/peerOrganizations/org1.hf.m.io/users/admin/msp/
+      - CORE_PEER_TLS_CERT_FILE=/data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/signcerts/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/keystore/server.key
+      - CORE_PEER_ID=peer0.org1.hf.m.io
+      - CORE_PEER_ADDRESS=peer0.org1.hf.m.io:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.hf.m.io:7051
+    depends_on: 
+      - orderer0.hf.m.io
+      - orderer3.hf.m.io
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 7051:7051
+      - 7053:7053
+    volumes:
+      - /var/run/:/host/var/run/
+      - peer0.org1.hf.m.io:/var/hyperledger/production
+      - ${PWD}/data:/data
+      - ${PWD}/scripts:/scripts
+      - ${HOME}/workspace/go/src/github.com/m/chaincode:/opt/gopath/src/github.com/m/chaincode
+      - ${PWD}/go:/usr/local/go
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500M"
+        max-file: "10"
+    restart: always
+
+  cli:
+    image: hyperledger/fabric-tools:latest
+    container_name: cli
+    tty: true
+    stdin_open: true
+    environment:
+      - GODEBUG=netdns=go
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_ATTACHSTDOUT=true
+      - FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_METRICS_PROVIDER=prometheus
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/data/org1-ca-chain.pem
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_LOCALMSPID=org1.hf.m.io
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=mnet
+      - CORE_PEER_MSPCONFIGPATH=/data/peerOrganizations/org1.hf.m.io/users/admin/msp/
+      - GOPATH=/opt/gopath
+      - CORE_PEER_TLS_CERT_FILE=/data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/signcerts/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/data/peerOrganizations/org1.hf.m.io/peers/peer0.org1.hf.m.io/tls/keystore/server.key
+      - CORE_PEER_ID=peer0.org1.hf.m.io
+      - CORE_PEER_ADDRESS=peer0.org1.hf.m.io:7051
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ${PWD}/data:/data
+      - ${PWD}/scripts:/scripts
+      - ${HOME}/workspace/go/src/github.com/m/chaincode:/opt/gopath/src/github.com/m/chaincode
+      - ${PWD}/go:/usr/local/go
+    depends_on:
+      - orderer0.hf.m.io
+      - orderer3.hf.m.io
+      - peer0.org1.hf.m.io
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500M"
+        max-file: "10"
+    restart: always
